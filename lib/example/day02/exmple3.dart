@@ -105,9 +105,9 @@ const obj = ['a','b'];
   // }
 
 
-const cc = [1,2];
- switch(cc){
-   case (int a, int b): print('a=$a, b=$b');
+
+ switch(obj){
+   case (var a, var b): print('a=$a, b=$b');
 
    default :
  }
