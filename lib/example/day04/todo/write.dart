@@ -25,7 +25,7 @@ class _WriteState extends State<Write>{
         "title" : titleController.text , // 제목 , 입력컨트롤러객체.text : 입력받은 값 반환
         "content" : contentController.text, // 내용
         "done" : "false"}; // 상태, 초기값
-      final response = await dio.post("http://192.168.40.25:8080/day04/todos" , data: sendData);
+      final response = await dio.post("https://legal-lexy-bettercomputeracademy-c3db22da.koyeb.app/day04/todos" , data: sendData);
       final data = response.data;
       if(data != null){ //등록 성공 했으면
         Navigator.pushNamed(context, "/"); //라우터 이용한 "/" 메인페이지 이동

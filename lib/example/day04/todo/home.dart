@@ -18,7 +18,7 @@ class _HomeState extends State<Home> {
   //3. 자바와 통신하여 할일 목록을 조회하는 함수 선언
   void todoFindAll() async {
     try {
-      final response = await dio.get("http://192.168.40.25:8080/day04/todos");
+      final response = await dio.get("https://legal-lexy-bettercomputeracademy-c3db22da.koyeb.app/day04/todos");
       final data = response.data;
       //조회 결과 없으면 [] , 조회결과가 있으면 [{} , {} , {}]
       // setState 이용하여 재렌더링한다.
@@ -41,7 +41,7 @@ class _HomeState extends State<Home> {
   //5. 삭제이벤트 함수
   void todoDelete( int id ) async{
     try{
-      final response = await dio.delete('http://192.168.40.25:8080/day04/todos?id=$id');
+      final response = await dio.delete('https://legal-lexy-bettercomputeracademy-c3db22da.koyeb.app/day04/todos?id=$id');
       final data = response.data;
       if(data == true){todoFindAll();} //삭제 성공시 할일목록 다시 호출하기
 
@@ -87,9 +87,14 @@ class _HomeState extends State<Home> {
                             ],
                           ),
                           //tailing : ListTile 오른쪽 끝에 표시되는 위젯
-                          // IconButton
-                          trailing: IconButton(onPressed: ()=>{todoDelete(todo['id'])} , icon: Icon(Icons.delete_forever)),
-
+                          trailing: Row(  // 하위 위젯들을 가로 배치 vs Column
+                            mainAxisSize: MainAxisSize.min, // 배치 방법 , 오른쪽 위젯들의 넓이를 자동으로 최소 할당
+                            children: [ // Row 위젯의 자식들
+                              IconButton(onPressed: ()=>{Navigator.pushNamed(context, "/update" , arguments: todo['id'])}, icon: Icon(Icons.edit),),
+                              IconButton(onPressed: ()=>{Navigator.pushNamed(context, "/detail" , arguments: todo['id'])}, icon: Icon(Icons.info)),
+                              IconButton(onPressed: ()=>{todoDelete(todo['id'])} , icon: Icon(Icons.delete_forever)),
+                            ],
+                          )
                         ),
                       );
                     }).toList(), //map 결과를 toList() 함수를 이용하여 List 타입으로 변환
