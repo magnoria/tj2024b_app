@@ -2,7 +2,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tj2024b_app/example/day02/example2.dart';
+import 'package:tj2024b_app/app/layout/mainapp.dart';
+import 'package:tj2024b_app/app/member/login.dart';
+
 
 class Info extends StatefulWidget{
   @override
@@ -30,9 +32,10 @@ class _InfoState extends State<Info>{
         isLoggin= true; print("로그인 중");
         onInfo(token); // 로그인 중일때 로그인 정보 요청 함수 실행
       });
-    }else{
+    }else{ // 비로그인 중일때 페이지 전환/이동
       setState(() {
-        isLoggin = false; print("비로그인 중");
+        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (content) => 이동할위젯명() ));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (content) => Login()));
       });
     }
   }
@@ -74,10 +77,21 @@ class _InfoState extends State<Info>{
       // 3. 전역변수(클라이언트) 에도 토큰 삭제
       await prefs.remove('token');
     }catch(e){print(e);}
+      // 4. 페이지 전환/이동
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp() ));
   }
-
+  // 6.
   @override
   Widget build(BuildContext context) {
+
+    // - 만약에 로그인 상태가 확인 되기전, 대기 화면 표현
+    if(isLoggin == null){ //만약에 비로그인 이면
+      return Scaffold(
+          //CircularProgressIndicator() : 로딩 화면 제공 위젯
+        body: Center(child: CircularProgressIndicator(),),
+      );
+    }
+
     return Scaffold(
       body: Container(
         margin: EdgeInsets.all(30),
