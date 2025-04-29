@@ -4,6 +4,7 @@ import 'package:tj2024b_app/app/member/info.dart';
 import 'package:tj2024b_app/app/member/login.dart';
 import 'package:tj2024b_app/app/member/signup.dart';
 import 'package:tj2024b_app/app/product/productList.dart';
+import 'package:tj2024b_app/app/product/productRegister.dart';
 
 class MainApp extends StatefulWidget{
   @override
@@ -18,14 +19,14 @@ class _MainAppState extends State<MainApp>{
   List<Widget>page = [
     Text("홈 페이지"),
      ProductList(), // 제품 목록
-     Text("게시물2 페이지"),
+     ProductRegister(),
      Info(),//Text("내정보 페이지"),
   ];
   // 2. 페이지 상단 제목 리스트
   List<String> pageTitle = [
     '홈' ,
     '제품목록' ,
-    '게시물2' ,
+    '제품등록' ,
     '내정보(회원가입)'
   ];
 
@@ -70,7 +71,7 @@ class _MainAppState extends State<MainApp>{
         items: [ // 여러개 버튼 위젯들
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "홈"),
           BottomNavigationBarItem(icon: Icon(Icons.forum), label: "제품목록"),
-          BottomNavigationBarItem(icon: Icon(Icons.forum), label: "게시물2"),
+          BottomNavigationBarItem(icon: Icon(Icons.forum), label: "제품등록"),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "내정보(회원가입)"),
         ],
       )
