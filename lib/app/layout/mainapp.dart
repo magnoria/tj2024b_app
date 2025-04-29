@@ -7,12 +7,24 @@ import 'package:tj2024b_app/app/product/productList.dart';
 import 'package:tj2024b_app/app/product/productRegister.dart';
 
 class MainApp extends StatefulWidget{
+
+  final int page; // 타입? : null 포함한다 뜻
+  MainApp({ required this.page });
+
   @override
   State<StatefulWidget> createState() {
     return _MainAppState();
   }
 }
 class _MainAppState extends State<MainApp>{
+
+  // 3. 현재 클린된 페이지 번호 : 상태 변수
+  int selectedIndex = 0; //0 = 홈, 1: 게시물, 2: 내정보
+
+  @override
+  void initState() {  // 페이지 이동 관련 Navigate 시 직접 이동이 아니라 테이블이므로 페이지 번호로 이동을 해야한다.
+        selectedIndex = widget.page;
+  }
 
   //1.페이지 위젯 리스트 : 여러개 위젯들을 갖는 리스트
   // Widget : 여러 위젯들을 상속하는 상위 위젯(클래스)
@@ -29,11 +41,6 @@ class _MainAppState extends State<MainApp>{
     '제품등록' ,
     '내정보(회원가입)'
   ];
-
-  // 3. 현재 클린된 페이지 번호 : 상태 변수
-  int selectedIndex = 0; //0 = 홈, 1: 게시물, 2: 내정보
-
-
 
 
 

@@ -1,8 +1,13 @@
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tj2024b_app/app/layout/mainapp.dart';
+import 'package:tj2024b_app/app/product/productList.dart';
+import 'package:tj2024b_app/app/product/productView.dart';
 import 'package:tj2024b_app/example/day02/example2.dart';
 
 class ProductRegister extends StatefulWidget{
@@ -38,7 +43,7 @@ class _ProductRegister extends State<ProductRegister>{
       ImagePicker picker = ImagePicker(); //이미지 피커 객체 생성 , .pickMultiImage(); 이미지 여러개, .pickImage(); 이미지 한개
       List<XFile> pickeFile = await picker.pickMultiImage(); //사용자가 선택한 이미지들을 XFILE 파일로 반환한다.
         // XFile 인터페이스는 이미지들을 조작할 수 있는 메소드를 제공한다.
-      if(pickeFile.isEmpty){// 선택된 이미지가 존재하면 상태변수에 저장한다.
+      if(pickeFile.isNotEmpty){// 선택된 이미지가 존재하면 상태변수에 저장한다. 이부분을 isEmpty로 하는 비어있으면 으로 되어 이미지 선택시 수량이 안올라감
         setState(() {
           selectedImage = pickeFile;
         });
@@ -73,13 +78,21 @@ class _ProductRegister extends State<ProductRegister>{
       formData.fields.add(MapEntry("pcontent", pcontentController.text)); // 폼에 입력받은 내용 대입
       formData.fields.add(MapEntry("pprice", ppriceController.text)); // 폼에 입력받은 가격 대입
       formData.fields.add(MapEntry("cno", '${cno}')); // 폼에 입력받은 카테고리번호 대입
+      // (*) 현재 선택된 이미지들을 formData 에 담아주기.
+      for( XFile xFile in selectedImage ){ // 향상된 포문
+        // Xfile 의 path : 파일의 경로 , xfile 의 name : 파일 이름 을 // dio의 multipartFile 이용하여 파일객체 만들기.
+        // Xfile ----> multipartFile 변환
+        final file = await MultipartFile.fromFile( xFile.path , filename:  xFile.name);
+        // dio의 multipartFile 객체를 폼 대입 , XFile 자체는 전송이 불가능하다.
+        formData.files.add(MapEntry("files", file)); // files 라는 이름으로 file(multiartFile)객체들을 대입한다.
+      }
 
       // 3. DIO 요청
         dio.options.headers['Authorization'] = token; // 3-1 : HTTP Header(통신 정보)에 인증 정보 포함.
       final reponse = await dio.post("$baseUrl/product/register" , data: formData);
 
       // 4. DIO 응답 처리
-      if(reponse.statusCode == 201 && reponse.data == true){print("제품등록");}
+      if(reponse.statusCode == 201 && reponse.data == true){print("제품등록"); Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp( page: 1, ) ));}
     }catch(e){print(e);}
   }
 
@@ -113,6 +126,26 @@ class _ProductRegister extends State<ProductRegister>{
       );
     }
 
+    // (+) 선택한 이미지를 미리보기 함수
+    Widget ImagePreview(){
+      if(selectedImage.isEmpty){return SizedBox();}// 만약에 선택된 이미지가 없으면
+      return Container(
+        height: 100,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,//List 방향, 기본값이 세로, 가로 설정
+          itemCount: selectedImage.length, //이미지 개수만큼 반복
+          itemBuilder: (context , index){// 반복문
+            final XFile xFile = selectedImage[index]; //index 번째 xfile 꺼내기
+            return Padding(
+                padding: EdgeInsets.all(5), //여백
+                child: SizedBox(width: 100, height: 100,// 이미지 사이즈
+                child: Image.file(File(xFile.path)),), // 현재 index 번째의 xfile 경로를 이미지로 출력
+            );
+          },
+        ),
+      );
+    }
+
 
     return Scaffold(
       body: Container(
@@ -120,19 +153,30 @@ class _ProductRegister extends State<ProductRegister>{
         child: Column(
           children: [
               CategoryDropdown(),
-              TextField(controller: pnameController,),
+
+            SizedBox(height: 16,),
+              TextField(controller: pnameController,
+                decoration: InputDecoration(
+                    labelText: "제품명",
+                    border: OutlineInputBorder()),),
               SizedBox(height: 16,),
-              TextField(controller: pcontentController,),
+
+              TextField(controller: pcontentController,
+                maxLines: 3, //텍스트 줄 길이
+                decoration: InputDecoration( labelText: "제품 명",border: OutlineInputBorder() ),),
               SizedBox(height: 16,),
-              TextField(controller: ppriceController,),
+
+              TextField(controller: ppriceController, maxLines: 3, decoration: InputDecoration(labelText: "제품 가격",border: OutlineInputBorder()),),
               SizedBox(height: 16,),
+
               TextButton.icon(
                 icon: Icon(Icons.add_a_photo),
                 label: Text("이미지 선택 : ${selectedImage.length}개"),
                 onPressed: onSelectImage,
               ),
-              SizedBox(height: 16,),
-              TextButton(onPressed: onResiter, child: Text("제품등록")),
+              ImagePreview(),
+              SizedBox(height: 10,),
+              ElevatedButton(onPressed: onResiter  ,child: Text("제품등록")),
           ],
         ),
       ),

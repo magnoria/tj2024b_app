@@ -28,7 +28,7 @@ class _LoginState extends State<Login>{
         'memail' : emailController.text, //입력 컨트롤러에 입력된 값 가져오기
         'mpwd' : pwdController.text,
       };
-      final response = await dio.post("http://localhost:8080/member/login" , data: senData);
+      final response = await dio.post("http://192.168.40.25:8080/member/login" , data: senData);
       final data = response.data;
       if(data != ''){// 로그인 성공시 토큰 SharedPreferences 에 저장하기
         // 1. 전역변수 호출
@@ -38,7 +38,7 @@ class _LoginState extends State<Login>{
         await prefs.setString('token', data);
         
         // * 로그인 성공시 페이지 전환
-        Navigator.pushReplacement( context , MaterialPageRoute(builder: (context) => MainApp()));
+        Navigator.pushReplacement( context , MaterialPageRoute(builder: (context) => MainApp( page: 0)));
         
       }else {
         print("회원가입 실패");

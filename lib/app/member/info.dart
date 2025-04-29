@@ -48,7 +48,7 @@ class _InfoState extends State<Info>{
       //방법1 : dio.options.headers['속성명'] = 값;
       // 방법2 : dio.get(options : {headers : {'속성명' : 값 }})
       dio.options.headers['Authorization'] = token;
-      final response = await dio.get("http://localhost:8080/member/info");
+      final response = await dio.get("http://192.168.40.25:8080/member/info");
       final data = response.data; print(data);
       if(data != ''){ // (로그인) 회원정보가 존재하면
         setState(() {
@@ -73,12 +73,12 @@ class _InfoState extends State<Info>{
       //2 서버에게 로그아웃요청
       Dio dio = Dio();
       dio.options.headers['Authorization'] = token;
-      dio.get("http://localhost:8080/member/logout");
+      dio.get("http://192.168.40.25:8080/member/logout");
       // 3. 전역변수(클라이언트) 에도 토큰 삭제
       await prefs.remove('token');
     }catch(e){print(e);}
       // 4. 페이지 전환/이동
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp() ));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp( page: 0) ));
   }
   // 6.
   @override

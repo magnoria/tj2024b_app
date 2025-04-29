@@ -1,6 +1,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tj2024b_app/example/day02/example2.dart';
 
 class ProductView extends StatefulWidget{ // 부모 위젯
@@ -31,20 +32,54 @@ class _ProductViewState extends State<ProductView>{ // 자식 위젯
   Map<String , dynamic> product = {}; // 제품 1개를 저장하는 상태 변수.
   final dio = Dio();
   final baseUrl =  "http://192.168.40.25:8080";
+  // *
+  bool isOwner = false; // 현재 로그인된 회원이 등록한 제품인지 확인하는 변수
+
+
   // 2. 생명주기
   void initState(){
     onView();
   }
+
   // 3. 제품 요청
   void onView() async{
     try{               // * 직계 상위 부모 위젯의 접근 : widget.필드명 , widget.메소드명()
                                                     // widget(상위의 위젯)의 멤버변수 예) super
       final response = await dio.get("$baseUrl/product/view?pno=${widget.pno}");
       if(response.data != null){
+
         setState(() {
           product = response.data;
           print(product); // print 확인시 --> 웹 :F12 개발자도구 , 에뮬레이터  : 콘솔
         });
+
+        // * 현재 로그인된 회원의 토큰 확인
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.get("token");
+        if(token == null){isOwner = false;} //비로그인중이면
+        //* 토큰 보내서 토큰의 회원정보 요청
+        dio.options.headers['Authorization'] = token; //token 포함
+        final reponse2 = await dio.get("$baseUrl/member/info"); // 요청
+        if(reponse2.data['memail'] == response.data['memail']){ // 회원정보의 아이디와 제품의 등록회원아이디와 같으면
+          setState(() {
+            isOwner = true; // 현재 로그인된 회원이 내가 등록한제품을 본다.
+          });
+        }
+      }
+    }catch(e){print(e);}
+  }
+
+  // 6. 삭제 요청 함수
+  void onDelete(pno) async{
+    try{
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString("token"); //토큰가져오기
+      if(token == null)return;
+
+      dio.options.headers['Authorization'] = token; // 토큰 포함
+      final reponse = await dio.delete('$baseUrl/product/delete?pno=$pno'); // pno 매개변수
+      if(reponse.data == true){
+        print("삭제성공");
       }
     }catch(e){print(e);}
   }
@@ -116,9 +151,16 @@ class _ProductViewState extends State<ProductView>{ // 자식 위젯
             Text("제품설명" , style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
             SizedBox(height: 8,),
             Text(product['pcontent']),
+            /*만약에 isOwner 가 true이면 로그인된 회원의 제품 */
+            if( isOwner )
+              Row(
+                children: [
+                  ElevatedButton(onPressed: ()=>{}, child: Text("수정")),
+                  ElevatedButton(onPressed: ()=>{ onDelete(product['pno'])}, child: Text("삭제")),
+                ],
+              )
           ],
         ),
-
       ),
     );
   }
